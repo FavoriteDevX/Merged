@@ -1,0 +1,35 @@
+name: Continuous Merge Loop
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Runs automatically every 10 minutes to bypass GitHub scheduling limits smoothly
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows you to trigger it manually via GitHub UI
+
+jobs:
+  merge-cycle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Crucial: Allows the bot to push merges back to your repo
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Fetches all history so merges work correctly
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run Merge Script
+      run: python auto_merge.py
+
+    - name: Push Merges to GitHub
+      run: |
+        # Securely push the simulated merges back to the main branch
+        git push origin main
